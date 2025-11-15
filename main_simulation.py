@@ -5,8 +5,10 @@ Reference: arxiv link
 
 This file: main file to show animation or figure plot of the relative position and yaw
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 from dataCreate import dataCreate
 from relativeEKF import EKFonSimData
@@ -168,7 +170,7 @@ def animate(step: int):
         u = data.come_to_position(step, xTrue)
         # u = data.calcInput_PotentialField(step, xTrue)
         # u = data.calcInput_Formation01(step, relativeState)
-        xTrue, zNois, uNois = data.update(xTrue, u)
+        xTrue, zNois, uNois = data.update(xTrue, u)   
         if step % ekfStride == 0:
             relativeState = relativeEKF.EKF(uNois, zNois, relativeState, ekfStride)
 
