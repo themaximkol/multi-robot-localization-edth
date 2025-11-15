@@ -173,7 +173,7 @@ if show_animation:
     time_text = ax.text(0.01, 0.97, '', transform=ax.transAxes)
     time_text.set_text('')
     ani = animation.FuncAnimation(fig, animate, frames=None, interval=10, blit=True)
-    ani.save('particle_box.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+    # ani.save('particle_box.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
     # ani.save('particle_box.mp4')
     plt.show()
 # else:
