@@ -39,7 +39,21 @@ class EKFonSimData:
                 PPred = jacoF@self.Pmatrix[:, :, i, j]@jacoF.T + jacoB@Q@jacoB.T
                 xij, yij, yawij = statPred
                 zPred = dist = np.sqrt(xij**2 + yij**2)
-                jacoH = np.array([[xij/dist, yij/dist, 0]])
+
+
+
+                dist = np.sqrt(xij ** 2 + yij ** 2)  # or without dz
+
+                # Guard: if distance is too small, skip the update for this pair
+                if dist < 1e-6:
+                    # Option 1: just skip measurement update, keep X,P as is
+                    continue
+                    # return Xij, Pij  # or: continue in the loop, depending on structure
+
+                # Safe Jacobian
+                jacoH = np.array([[xij / dist, yij / dist, 0.0]])
+
+
                 resErr = zNois[i, j] - zPred
                 S = jacoH@PPred@jacoH.T + R
                 K = PPred@jacoH.T@np.linalg.inv(S)
