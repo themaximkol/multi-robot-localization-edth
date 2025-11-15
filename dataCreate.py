@@ -13,6 +13,8 @@ class dataCreate:
         self.dt = dt
         self.devInput = devInput
         self.devObser = devObser
+        self.angle = 2*np.pi/(self.numRob-1)
+        self.final_positions = np.vstack((np.zeros((1, 2)), np.array([[np.cos(i*self.angle), np.sin(i*self.angle)] for i in range(self.numRob)])))
 
         # variables to be used in PID formation control
         self.intErrX = 0
@@ -57,12 +59,24 @@ class dataCreate:
         velocity_output[0,:] =  velocity_temp[0,:] * np.cos(xTrue[2,:]) + velocity_temp[1,:] * np.sin(xTrue[2,:])
         velocity_output[1,:] = -velocity_temp[0,:] * np.sin(xTrue[2,:]) + velocity_temp[1,:] * np.cos(xTrue[2,:])
         return velocity_output
+    
+    def come_to_position(self, step, xTrue):
+        # Calculate control inputs [vx, vy, yaw_rate]' of all robots such that
+        # all robots come to their final positions
+        kp = 0.25
+        for i in range(self.numRob):
+            errX = self.final_positions[i,0] - xTrue[0,i]
+            errY = self.final_positions[i,1] - xTrue[1,i]
+            self.velocity[0,i] = kp*errX
+            self.velocity[1,i] = kp*errY
+            self.velocity[2,i] = 0
+        return self.velocity
 
     def calcInput_FlyIn1m(self, step):
     # Calculate control inputs [vx, vy, yaw_rate]' of all robots such that
     # all robots fly randomly within 1m range
-        if (step % 100) == 0:
-            if (step % 200) == 0:
+        if (step % 50) == 0:
+            if (step % 100) == 0:
                 self.velocity = -self.velocity
             else:
                 self.velocity[0:2,:] = np.random.uniform(0, self.maxVel*2, (2, self.numRob)) - self.maxVel
@@ -91,9 +105,9 @@ class dataCreate:
             else:
                 self.velocity[0:2,:] = np.random.uniform(0, self.maxVel*2, (2, self.numRob)) - self.maxVel
                 self.velocity[2,:] = np.random.uniform(0, 1, (1, self.numRob)) - 0.5
-        if step > 4000:
-            self.velocity[0, 1] = 0
-            self.velocity[1, 1] = 0
+        if step > 1000:
+            self.velocity[0, 0] = 0
+            self.velocity[1, 0] = 0
         return self.velocity
 
     def pidControl(self, relaX01, relaY01):
